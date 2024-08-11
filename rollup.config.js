@@ -1,5 +1,5 @@
 import dts from 'rollup-plugin-dts';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 import copy from 'rollup-plugin-copy';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
 import esbuild from 'rollup-plugin-esbuild';

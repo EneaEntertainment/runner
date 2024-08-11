@@ -16,6 +16,9 @@ interface IRunnerQueueData
  *
  * Runner
  *
+ * based on: https://github.com/GoodBoyDigital/mini-runner
+ * thx!
+ *
  * const myRunner = new Runner('update');
  *
  * param = 'update'   - update method has no arguments
@@ -49,7 +52,9 @@ export class Runner
         const numArgs = parseInt(tmp[1], 10);
 
         if (numArgs > 3)
+        {
             this.dispatch = this.dispatchX;
+        }
         else
         {
             // optimization
@@ -72,7 +77,9 @@ export class Runner
         this.isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
+        {
             this.items[i][this.name]();
+        }
 
         this.isRunning = false;
 
@@ -85,7 +92,9 @@ export class Runner
         this.isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
+        {
             this.items[i][this.name](arg0);
+        }
 
         this.isRunning = false;
 
@@ -98,7 +107,9 @@ export class Runner
         this.isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
+        {
             this.items[i][this.name](arg0, arg1);
+        }
 
         this.isRunning = false;
 
@@ -111,7 +122,9 @@ export class Runner
         this.isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
+        {
             this.items[i][this.name](arg0, arg1, arg2);
+        }
 
         this.isRunning = false;
 
@@ -132,7 +145,9 @@ export class Runner
         this.isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
+        {
             this.items[i][this.name](...args);
+        }
 
         this.isRunning = false;
 
@@ -143,19 +158,27 @@ export class Runner
     public add(item: unknown, index?: number)
     {
         if (typeof (item as any)[this.name] === 'undefined')
+        {
             return;
+        }
 
         if (!this.isRunning)
         {
             this.detach(item);
 
             if (typeof index === 'undefined')
+            {
                 this.items.push(item);
+            }
             else
+            {
                 this.items.splice(index, 0, item);
+            }
         }
         else
+        {
             this.itemsQueue.push({ item, index });
+        }
     }
 
     public detach(item: unknown)
@@ -163,10 +186,14 @@ export class Runner
         const index = this.items.indexOf(item);
 
         if (index === -1)
+        {
             return;
+        }
 
         if (!this.isRunning)
+        {
             this.items.splice(index, 1);
+        }
         else
         {
             this.isDirty = true;
@@ -178,7 +205,9 @@ export class Runner
     private cleanup()
     {
         for (let i = this.removeQueue.length - 1; i >= 0; i--)
+        {
             this.detach(this.removeQueue[i]);
+        }
 
         this.isDirty = false;
     }
