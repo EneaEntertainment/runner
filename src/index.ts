@@ -3,7 +3,7 @@ const noop = () => {};
 
 interface IRunnerItemData
 {
-    [key: string]: ()=> void
+    [key: string]: () => void
 }
 
 interface IRunnerQueueData
@@ -14,34 +14,32 @@ interface IRunnerQueueData
 
 /**
  *
- * Runner
+ *Runner
  *
- * based on: https://github.com/GoodBoyDigital/mini-runner
- * thx!
+ *based on: https://github.com/GoodBoyDigital/mini-runner
+ *thx!
  *
- * const myRunner = new Runner('update');
+ *const myRunner = new Runner('update');
  *
- * param = 'update'   - update method has no arguments
- * param = 'update|1' - update method has 1 argument
- * param = 'update|3' - update method has 3 arguments
- *
- * @export
+ *param = 'update'   - update method has no arguments
+ *param = 'update|1' - update method has 1 argument
+ *param = 'update|3' - update method has 3 arguments
  * @class Runner
  */
 export class Runner
 {
-    readonly name: string;
+    public readonly name: string;
 
-    public dispatch: (...args: Array<any>)=> void;
+    public dispatch: (...args: Array<any>) => void;
 
-    private impostor: IRunnerItemData;
+    private readonly _impostor: IRunnerItemData;
     public items: Array<any> = [];
 
-    private itemsQueue: Array<IRunnerQueueData> = [];
-    private removeQueue: Array<any> = [];
-    private isRunning = false;
-    private isHungry = false;
-    private isDirty = false;
+    private readonly _itemsQueue: Array<IRunnerQueueData> = [];
+    private readonly _removeQueue: Array<any> = [];
+    private _isRunning = false;
+    private _isHungry = false;
+    private _isDirty = false;
 
     constructor(name: string)
     {
@@ -53,106 +51,105 @@ export class Runner
 
         if (numArgs > 3)
         {
-            this.dispatch = this.dispatchX;
+            this.dispatch = this._dispatchX;
         }
         else
         {
             // optimization
             switch (numArgs)
             {
-                case 1: this.dispatch = this.dispatch1; break;
-                case 2: this.dispatch = this.dispatch2; break;
-                case 3: this.dispatch = this.dispatch3; break;
+                case 1: this.dispatch = this._dispatch1; break;
+                case 2: this.dispatch = this._dispatch2; break;
+                case 3: this.dispatch = this._dispatch3; break;
 
                 // no arguments or isNaN
-                default: this.dispatch = this.dispatch0;
+                default: this.dispatch = this._dispatch0;
             }
         }
 
-        this.impostor = { [this.name]: noop };
+        this._impostor = { [this.name]: noop };
     }
 
-    private dispatch0()
+    private _dispatch0()
     {
-        this.isRunning = true;
+        this._isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
         {
             this.items[i][this.name]();
         }
 
-        this.isRunning = false;
+        this._isRunning = false;
 
-        if (this.isDirty) this.cleanup();
-        if (this.isHungry) this.feed();
+        if (this._isDirty) this._cleanup();
+        if (this._isHungry) this._feed();
     }
 
-    private dispatch1(arg0: unknown)
+    private _dispatch1(arg0: unknown)
     {
-        this.isRunning = true;
+        this._isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
         {
             this.items[i][this.name](arg0);
         }
 
-        this.isRunning = false;
+        this._isRunning = false;
 
-        if (this.isDirty) this.cleanup();
-        if (this.isHungry) this.feed();
+        if (this._isDirty) this._cleanup();
+        if (this._isHungry) this._feed();
     }
 
-    private dispatch2(arg0: unknown, arg1: unknown)
+    private _dispatch2(arg0: unknown, arg1: unknown)
     {
-        this.isRunning = true;
+        this._isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
         {
             this.items[i][this.name](arg0, arg1);
         }
 
-        this.isRunning = false;
+        this._isRunning = false;
 
-        if (this.isDirty) this.cleanup();
-        if (this.isHungry) this.feed();
+        if (this._isDirty) this._cleanup();
+        if (this._isHungry) this._feed();
     }
 
-    private dispatch3(arg0: unknown, arg1: unknown, arg2: unknown)
+    private _dispatch3(arg0: unknown, arg1: unknown, arg2: unknown)
     {
-        this.isRunning = true;
+        this._isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
         {
             this.items[i][this.name](arg0, arg1, arg2);
         }
 
-        this.isRunning = false;
+        this._isRunning = false;
 
-        if (this.isDirty) this.cleanup();
-        if (this.isHungry) this.feed();
+        if (this._isDirty) this._cleanup();
+        if (this._isHungry) this._feed();
     }
 
-    private dispatchX()
+    private _dispatchX()
     {
         const args = new Array(arguments.length);
 
         for (let i = 0; i < args.length; ++i)
         {
-            // eslint-disable-next-line prefer-rest-params
             args[i] = arguments[i];
         }
 
-        this.isRunning = true;
+        this._isRunning = true;
 
         for (let i = 0; i < this.items.length; i++)
         {
             this.items[i][this.name](...args);
         }
 
-        this.isRunning = false;
+        this._isRunning = false;
 
-        if (this.isDirty) this.cleanup();
-        if (this.isHungry) this.feed();
+        if (this._isDirty) this._cleanup();
+        if (this._isHungry) this._feed();
     }
 
     public add(item: unknown, index?: number)
@@ -162,7 +159,7 @@ export class Runner
             return;
         }
 
-        if (!this.isRunning)
+        if (!this._isRunning)
         {
             this.detach(item);
 
@@ -177,7 +174,7 @@ export class Runner
         }
         else
         {
-            this.itemsQueue.push({ item, index });
+            this._itemsQueue.push({ item, index });
         }
     }
 
@@ -190,45 +187,45 @@ export class Runner
             return;
         }
 
-        if (!this.isRunning)
+        if (!this._isRunning)
         {
             this.items.splice(index, 1);
         }
         else
         {
-            this.isDirty = true;
-            this.items[index] = this.impostor;
-            this.removeQueue.push(item);
+            this._isDirty = true;
+            this.items[index] = this._impostor;
+            this._removeQueue.push(item);
         }
     }
 
-    private cleanup()
+    private _cleanup()
     {
-        for (let i = this.removeQueue.length - 1; i >= 0; i--)
+        for (let i = this._removeQueue.length - 1; i >= 0; i--)
         {
-            this.detach(this.removeQueue[i]);
+            this.detach(this._removeQueue[i]);
         }
 
-        this.isDirty = false;
+        this._isDirty = false;
     }
 
-    private feed()
+    private _feed()
     {
-        for (let i = 0; i < this.itemsQueue.length; i++)
+        for (let i = 0; i < this._itemsQueue.length; i++)
         {
-            const queue = this.itemsQueue[i];
+            const queue = this._itemsQueue[i];
 
             this.add(queue.item, queue.index);
         }
 
-        this.isHungry = false;
+        this._isHungry = false;
     }
 
     public detachAll()
     {
         this.items.length = 0;
-        this.itemsQueue.length = 0;
-        this.removeQueue.length = 0;
+        this._itemsQueue.length = 0;
+        this._removeQueue.length = 0;
     }
 
     public destroy()
